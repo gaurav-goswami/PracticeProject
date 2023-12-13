@@ -1,23 +1,40 @@
 import { Button, Form, Input, message } from "antd";
 import { useForm } from "antd/es/form/Form";
-import React, { useState } from "react";
+// import React, { useState } from "react";
+import React from "react";
 import { IUserDetails } from "../types";
-import { login } from "../lib/Auth";
+// import { login } from "../lib/Auth";
 import { useNavigate } from "react-router-dom";
+import useApiMethod from "../hooks/useApiMethod";
+import { loginUser } from "../routes/auth";
 
 const Login: React.FC = () => {
   const [form] = useForm();
-
-  // console.log("form" , form.getFieldValue("email"));
-
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
   form.setFieldsValue({ email: "eve.holt@reqres.in", password: "cityslicka" });
 
   const [messageApi, contextHolder] = message.useMessage();
-  const handleLogin = (value: IUserDetails) => {
-    login(value, setLoading, navigate, messageApi);
+
+  const { callApi, loading } = useApiMethod();
+  const navigate = useNavigate();
+
+  const handleLogin = async (value: IUserDetails) => {
+    try {
+      const res = await callApi(() => loginUser(value));
+      localStorage.setItem("token", res?.data?.token);
+
+      await messageApi.open({
+        type: "success",
+        content: "Logged In",
+        duration: 0.5,
+      });
+
+      navigate("/data");
+    } catch (error : any) {
+      messageApi.open({
+        type : "error",
+        content : error?.response?.data?.error
+      })
+    }
   };
 
   return (

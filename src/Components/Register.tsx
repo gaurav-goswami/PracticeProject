@@ -1,25 +1,49 @@
 import { Button, Form, Input, message } from "antd";
 import { useForm } from "antd/es/form/Form";
-import React, { useState } from "react";
-import { signup } from "../lib/Auth";
+import React from "react";
+// import { signup } from "../lib/Auth";
 import { ISignUpData } from "../types";
 import { useNavigate } from "react-router-dom";
+import useApiMethod from "../hooks/useApiMethod";
+import { registerUser } from "../routes/auth";
 
 const Register: React.FC = () => {
   const [form] = useForm();
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-
   const [messageApi, contentHandle] = message.useMessage();
-  const handleSignup = (data: ISignUpData) => {
-    const { email, password } = data;
-    signup({ email, password }, setLoading, navigate, messageApi);
+  // const handleSignup = (data: ISignUpData) => {
+  //   const { email, password } = data;
+  //   signup({ email, password }, setLoading, navigate, messageApi);
+  // };
+
+  const { callApi, loading } = useApiMethod();
+
+  const handleSignup = async (data: ISignUpData) => {
+    try {
+      const { email, password } = data;
+      const response = await callApi(() => registerUser({ email, password }));
+
+      localStorage.setItem("token", response?.data?.token);
+
+      await messageApi.open({
+        type: "success",
+        content: "Signup successfull",
+        duration: 0.5,
+      });
+
+      navigate("/data");
+    } catch (error : any) {
+      messageApi.open({
+        type: "error",
+        content: error?.response?.data?.error,
+      });
+    }
   };
 
   return (
     <>
-    {contentHandle}
+      {contentHandle}
       <div className="flex flex-col">
         <Form
           form={form}
