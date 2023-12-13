@@ -1,6 +1,7 @@
-import { Table } from "antd";
+import { Button, Table, message } from "antd";
 import React, { useEffect, useState } from "react";
 import fetchUserData from "../lib/Data";
+import { useNavigate } from "react-router-dom";
 
 const Data: React.FC = () => {
   const [dataSource, setDataSource] = useState();
@@ -35,7 +36,7 @@ const Data: React.FC = () => {
         res.map((data: any) => {
           return {
             key: data.id,
-            id : data.id,
+            id: data.id,
             email: data.email,
             first_name: data.first_name,
             last_name: data.last_name,
@@ -46,14 +47,31 @@ const Data: React.FC = () => {
       console.error("Error in fetchData:", error);
     }
   };
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const handleLogout = async () => {
+    localStorage.removeItem("token");
+    await messageApi.open({
+      type : "success",
+      content : "Logged out",
+      duration : .5
+    })
+    navigate("/");
+  };
+
   return (
     <>
-      <Table dataSource={dataSource} columns={columns} />;
+    {contextHolder}
+      <Table dataSource={dataSource} columns={columns} />
+      <Button className="mx-4" onClick={handleLogout}>
+        Logout
+      </Button>
     </>
   );
 };

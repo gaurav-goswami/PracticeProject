@@ -31,3 +31,10 @@ export interface IDataResponse {
     text: string;
   };
 }
+
+export interface ISignUpData {
+  firstName : string,
+  lastName : string,
+  email : string,
+  password : string
+}

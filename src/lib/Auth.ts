@@ -1,41 +1,71 @@
 import axios from "axios";
 import { ISignupResponse, IUserDetails } from "../types";
-import toast from "react-hot-toast";
 
 const baseUrl: string = import.meta.env.VITE_REACT_APP_BASE_URL;
 
 export const login = async (
   userDetails: IUserDetails,
   setLoading: (x: boolean) => void,
-  navigate : (x : string) => void
+  navigate: (x: string) => void,
+  messageApi: any
 ) => {
   setLoading(true);
   try {
-    const response = await axios.post(
-      `${baseUrl}/api/login`,
-      userDetails
-    );
+    const response = await axios.post(`${baseUrl}/api/login`, userDetails);
     setLoading(false);
-    const {token} = response?.data;
-    localStorage.setItem('token' , token);
-    toast.success("Logged in");
+    const { token } = response?.data;
+
+    await messageApi.open({
+      type: "success",
+      content: "Logged In",
+      duration : .6
+    });
+
+    localStorage.setItem("token", token);
     navigate("/data");
   } catch (error: any) {
     const err = error?.response?.data;
     setLoading(false);
-    toast.error(err.error);
+    messageApi.open({
+      type: "error",
+      content: err.error,
+      duration: 0.5,
+    });
     throw err;
   }
 };
 
-export const signup = async (userDetails: IUserDetails) => {
+export const signup = async (
+  userDetails: IUserDetails,
+  setLoading: (x: boolean) => void,
+  navigate: (x: string) => void,
+  messageApi : any
+) => {
+  setLoading(true);
   try {
-    const response: ISignupResponse = await axios.post(
+    const response: ISignupResponse | any = await axios.post(
       `${baseUrl}/api/register`,
       userDetails
     );
-    console.log("signup response is", response);
-  } catch (error) {
-    console.log(error);
+    setLoading(false);
+    const { token } = response?.data;
+
+    await messageApi.open({
+      type: "success",
+      content: "Signup successfull",
+      duration : .6
+    });
+
+    localStorage.setItem("token", token);
+    navigate("/data");
+  } catch (error: any) {
+    const err = error?.response?.data;
+    setLoading(false);
+    messageApi.open({
+      type: "error",
+      content: err.error,
+      duration: 0.5,
+    });
+    throw err;
   }
 };

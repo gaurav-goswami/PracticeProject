@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Data from "./Pages/Data";
 import LoginProtected from "./Protected/LoginProtected";
 import DataProtected from "./Protected/DataProtected";
+import Auth from "./Pages/Auth";
 
 const App: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const App: React.FC = () => {
           </Route>
           <Route element={<DataProtected />}>
             <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Auth />} />
           </Route>
           <Route path="*" element={<p>Page Not Found</p>} />
         </Routes>
